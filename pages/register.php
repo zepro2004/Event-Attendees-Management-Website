@@ -23,7 +23,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
         <?php unset($_SESSION['registration_errors']); ?>
     <?php endif; ?>
-
     <form id="registrationForm" action="../server/form_handlers.php" method="POST" novalidate>
     <div class="form-group">
         <label for="username">Username:</label>
