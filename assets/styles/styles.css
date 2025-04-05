@@ -517,29 +517,6 @@ textarea:focus {
   margin-top: 0;
 }
 
-/* Add to the Dashboard section */
-
-.attending-badge {
-  background-color: var(--success-color);
-  color: white;
-  padding: 5px 10px;
-  border-radius: var(--border-radius);
-  font-size: 0.8rem;
-  display: inline-block;
-  margin-left: 10px;
-}
-
-.attending-list .event-item {
-  background-color: rgba(67, 160, 71, 0.05);
-  border-left: 3px solid var(--success-color);
-}
-
-.event-organizer {
-  font-size: 0.85rem;
-  color: var(--dark-gray);
-  margin-top: 3px;
-}
-
 /* 11. Authentication */
 .auth-container {
   max-width: 500px;
@@ -561,6 +538,7 @@ textarea:focus {
 }
 
 /* 12. Messages & Notifications */
+/* Add to section 12. Messages & Notifications */
 
 /* Input field styling when error occurs */
 input.error {
@@ -665,115 +643,3 @@ input.error {
     width: 95%;
   }
 }
-
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .event-header {
-    flex-direction: column;
-  }
-
-  .search-form button {
-    width: 100%;
-  }
-
-  .events-list {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
-
-  .container {
-    width: 95%;
-    padding: 15px 10px;
-  }
-
-  /* Improved header for mobile */
-  header .container {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .logo {
-    margin-bottom: 15px;
-  }
-
-  .navigation ul {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .navigation li {
-    margin: 8px 0;
-    margin-left: 0;
-    text-align: center;
-  }
-
-  /* Adjust font sizes */
-  h1 {
-    font-size: 2rem;
-  }
-  h2 {
-    font-size: 1.7rem;
-  }
-  h3 {
-    font-size: 1.3rem;
-  }
-
-  /* Better button experience on mobile */
-  .btn {
-    padding: 10px 16px;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .dashboard-events-list .event-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .event-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-/* Extra small devices */
-@media (max-width: 480px) {
-  .events-list {
-    grid-template-columns: 1fr;
-  }
-
-  h1 {
-    font-size: 1.8rem;
-  }
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  .event-meta {
-    flex-direction: column;
-  }
-
-  .event-meta div {
-    margin-right: 0;
-  }
-
-  .attendee {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .attendee-status {
-    margin-left: 0;
-    margin-top: 5px;
-  }
-
-  input,
-  select,
-  textarea {
-    font-size: 16px; /* Prevents iOS zoom on focus */
-  }
-}
-/* ...existing code... */
