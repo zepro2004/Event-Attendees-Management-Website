@@ -1,15 +1,18 @@
 <?php
 // Database connection file
-$dsn = "mysql:host=localhost;dbname=assignment2";
-$username = "root"; // Database username
-$password = ""; // Database password
+$host = "localhost";
+$dbname = "assignment2";
+$username = "root"; 
+$password = ""; 
 
-try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    // Log error privately
-    error_log("Database connection error: " . $e->getMessage());
-    // Show generic error
+// Create MySQLi connection
+$mysqli = new mysqli($host, $username, $password, $dbname);
+
+// Check for connection errors
+if ($mysqli->connect_error) {
+    error_log("Database connection error: " . $mysqli->connect_error);
     die("A database connection error occurred. Please try again later.");
 }
+
+// Set charset to ensure proper encoding
+$mysqli->set_charset("utf8mb4");

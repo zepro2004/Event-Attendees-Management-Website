@@ -1,63 +1,56 @@
 <?php
+/**
+ * Events Listing Page
+ * 
+ * This page displays all available events with filtering options.
+ * Users can search and filter events based on various criteria including
+ * search terms, location (city/state), and date ranges.
+ */
+
+// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-} 
+}
+include '../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events | Event Planning System</title>
-    <link rel="stylesheet" href="../assets/styles/styles.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
-
-    <div class="container">
-        <h2>Events</h2>
-        
-        <!-- Search and Filter Section -->
+<div class="container">
+    <h2>Events</h2>
+    
+    <!-- Search Form - Provides filtering options for events -->
     <div class="search-container">
         <form id="searchForm" class="search-form">
             <div class="form-row">
+                <!-- Text search field for event titles and descriptions -->
                 <div class="form-group">
                     <label for="search">Search:</label>
                     <input type="text" id="search" name="search" placeholder="Search events...">
                 </div>
+                <!-- Location filtering - City -->
                 <div class="form-group">
                     <label for="city">City:</label>
                     <input type="text" id="city" name="city" placeholder="Filter by city">
                 </div>
+                <!-- Location filtering - State/Province -->
                 <div class="form-group">
-                    <label for="state">Province:</label>
-                    <input type="text" id="state" name="state" placeholder="Province/State">
+                    <label for="state">State/Province:</label>
+                    <input type="text" id="state" name="state" placeholder="Filter by state">
                 </div>
             </div>
             
             <div class="form-row">
+                <!-- Date filtering options -->
                 <div class="form-group">
-                    <label for="postal_code">Postal Code:</label>
-                    <input type="text" id="postal_code" name="postal_code" placeholder="Postal/ZIP code">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date">
                 </div>
-                <div class="form-group">
-                    <label for="year">Year:</label>
-                    <select id="year" name="year">
-                        <option value="">Any year</option>
-                        <?php 
-                        $currentYear = date('Y');
-                        for ($i = $currentYear; $i <= $currentYear + 5; $i++) {
-                            echo "<option value=\"$i\">$i</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                <!-- Month selection dropdown -->
                 <div class="form-group">
                     <label for="month">Month:</label>
                     <select id="month" name="month">
                         <option value="">Any month</option>
                         <?php
+                        // Generate month options dynamically
                         $months = [
                             1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
                             5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
@@ -69,25 +62,23 @@ if (session_status() === PHP_SESSION_NONE) {
                         ?>
                     </select>
                 </div>
-            </div>
-            
-            <div class="form-row">
+                <!-- Year selection dropdown -->
                 <div class="form-group">
-                    <label for="max_attendees">Max Attendees:</label>
-                    <select id="max_attendees" name="max_attendees">
-                        <option value="">Any size</option>
-                        <option value="10">Small (≤ 10)</option>
-                        <option value="50">Medium (≤ 50)</option>
-                        <option value="100">Large (≤ 100)</option>
-                        <option value="500">Very Large (≤ 500)</option>
+                    <label for="year">Year:</label>
+                    <select id="year" name="year">
+                        <option value="">Any year</option>
+                        <?php
+                        // Generate 5 years of options starting with current year
+                        $currentYear = date('Y');
+                        for ($y = $currentYear; $y <= $currentYear + 5; $y++) {
+                            echo "<option value=\"$y\">$y</option>";
+                        }
+                        ?>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="date">Specific Date:</label>
-                    <input type="date" id="date" name="date">
-                </div>
             </div>
-            
+           
+            <!-- Form action buttons -->
             <div class="form-actions">
                 <button type="submit" class="btn">Search</button>
                 <button type="reset" class="btn secondary">Reset</button>
@@ -95,24 +86,21 @@ if (session_status() === PHP_SESSION_NONE) {
         </form>
     </div>
 
-        <!-- Events List with user ID data attribute -->
-        <div id="eventsList" class="events-list" 
-            data-user-id="<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '0'; ?>"
-            data-page="public">
-            <!-- Events will be loaded here dynamically -->
-            <div class="loading">Loading events...</div>
+    <!-- Events List Container - Populated via JavaScript -->
+    <div id="eventsList" class="events-list" 
+        data-user-id="<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '0'; ?>"
+        data-page="public">
+        <div class="loading">Loading events...</div>
+    </div>
+
+    <!-- Login prompt for non-authenticated users -->
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        <div class="login-prompt">
+            <p>Please <a href="login.php">login</a> to manage your events.</p>
         </div>
+    <?php endif; ?>
+</div>
 
-        <?php if (!isset($_SESSION['user_id'])): ?>
-            <div class="login-prompt">
-                <p>Please <a href="login.php">login</a> to manage your events.</p>
-            </div>
-        <?php endif; ?>
-    </div><!-- Container closing tag -->
-
-    <!-- Include the external JavaScript file -->
-    <script src="../scripts/events.js"></script>
-
-    <?php include '../includes/footer.php'; ?>
-</body>
-</html>
+<!-- Include JavaScript for event listing and filtering functionality -->
+<script src="../scripts/events.js"></script>
+<?php include '../includes/footer.php'; ?>

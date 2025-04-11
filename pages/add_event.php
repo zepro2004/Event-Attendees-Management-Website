@@ -1,9 +1,18 @@
 <?php
+/**
+ * Event Creation Page
+ * 
+ * This page allows authenticated users to create new events in the system.
+ * It includes a form for entering event details such as title, date, location,
+ * description, and uploading an event image.
+ */
+
+// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in
+// Authentication check - redirect unauthenticated users to login page
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php?redirect=create-event');
     exit();
@@ -28,8 +37,12 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <div class="add-event-container">
-            <form id="addEventForm" class="event-form" action="../server/events.php" method="POST">
+            <!-- Event creation form - submits to event_handlers.php -->
+            <form id="addEventForm" class="event-form" action="../server/event_handlers.php" method="POST" enctype="multipart/form-data">
+                <!-- Hidden input for form action identification -->
                 <input type="hidden" name="action" value="add">    
+                
+                <!-- Basic event information section -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="title">Event Title:</label>
@@ -41,6 +54,7 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
+                <!-- Additional timing and capacity section -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="end_date">End Date (Optional):</label>
@@ -52,6 +66,7 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
+                <!-- Event location section -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="address">Address:</label>
@@ -59,6 +74,7 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
+                <!-- City and state/province section -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="city">City:</label>
@@ -70,6 +86,7 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
+                <!-- Postal code and country section -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="postal_code">Postal Code:</label>
@@ -81,22 +98,27 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
+                <!-- Event description section -->
                 <div class="form-group">
                     <label for="description">Description:</label>
                     <textarea id="description" name="description" rows="4"></textarea>
                 </div>
                 
+                <!-- Event image upload section -->
                 <div class="form-group">
-                    <label for="image_url">Image URL (Optional):</label>
-                    <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                    <label for="event_image">Event Image</label>
+                    <input type="file" id="event_image" name="event_image" accept="image/*">
+                    <small>Recommended size: 800x400px. Maximum file size: 5MB.</small>
                 </div>
                 
+                <!-- Form submission section -->
                 <input type="hidden" name="action" value="add">
                 <button type="submit" class="btn">Create Event</button>
             </form>
         </div>
     </div>
 
+    <!-- Include client-side validation and event handling scripts -->
     <script src="../scripts/events.js"></script>
     <?php include '../includes/footer.php'; ?>
 </body>

@@ -14,7 +14,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/Assignment2/server/auth.php';
 <header>
     <div class="container">
         <div class="logo">
-            <h1>Welcome to the Event Planning System</h1>
+            <h1><a href="/Assignment2/index.php">Uevent</a></h1>
         </div>
         <nav class="navigation">
             <ul class="nav-list">

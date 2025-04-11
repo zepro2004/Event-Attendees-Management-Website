@@ -1,68 +1,84 @@
 <?php
+/**
+ * User Registration Page
+ * 
+ * This page allows new users to create an account in the system.
+ * Features include:
+ * - Form fields for username, name, email, and password
+ * - Form validation (both client and server-side)
+ * - Error message display for failed registration attempts
+ * - Password confirmation field for security
+ */
+
+// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create an account</title>
-    <link rel="stylesheet" href="../assets/styles/styles.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
 
 <div class="container">
     <h2>User Registration</h2>
     
+    <!-- Display validation errors if registration failed -->
     <?php if (isset($_SESSION['registration_errors']) && !empty($_SESSION['registration_errors'])): ?>
         <div class="error-container">
-            <p class="error"><?php echo htmlspecialchars($_SESSION['registration_errors']['username'] ?? ''); ?></p>
+            <?php foreach($_SESSION['registration_errors'] as $error): ?>
+                <p class="error"><?php echo htmlspecialchars($error); ?></p>
+            <?php endforeach; ?>
         </div>
         <?php unset($_SESSION['registration_errors']); ?>
     <?php endif; ?>
-    <form id="registrationForm" action="../server/form_handlers.php" method="POST" novalidate>
-    <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username">
-    </div>
     
-    <div class="form-row">
+    <!-- Registration form - submits to form_handlers.php -->
+    <form id="registrationForm" action="../server/form_handlers.php" method="POST">
+        <!-- Username field -->
         <div class="form-group">
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username">
         </div>
+        
+        <!-- First and last name fields in a row -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" >
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name">
+            </div>
+        </div>
+        
+        <!-- Email field -->
         <div class="form-group">
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email">
         </div>
-    </div>
+        
+        <!-- Password and confirmation fields in a row -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword">
+            </div>
+        </div>
+        
+        <!-- Hidden field to identify form action in form_handlers.php -->
+        <input type="hidden" name="action" value="register">
+        <button type="submit" class="btn">Register</button>
+    </form>
     
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email">
+    <!-- Link to login page for existing users -->
+    <div class="form-footer">
+        <p>Already have an account? <a href="login.php">Login here</a></p>
     </div>
-    
-    <div class="form-row">
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password">
-        </div>
-        <div class="form-group">
-            <label for="confirmPassword">Confirm Password:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword">
-        </div>
-    </div>
-    
-    <input type="hidden" name="action" value="register">
-    <button type="submit" class="btn">Register</button>
-</form>
 </div>
 
+<!-- Include client-side validation script -->
 <script src="../scripts/validation.js"></script>
-
-<?php
-include('../includes/footer.php');
-?>
+<?php include '../includes/footer.php'; ?>

@@ -1,172 +1,214 @@
-// validation.js
+/**
+ * Form Validation Script
+ *
+ * This script provides client-side validation for login and registration forms.
+ * Features include:
+ * - Real-time validation feedback
+ * - Username availability checking
+ * - Password strength requirements
+ * - Error message display and clearing
+ */
 
-const validateRegistration = async (event) => {
-  event.preventDefault();
+// Initialize validation when the DOM is fully loaded
+document.addEventListener("DOMContentLoaded", () => {
+  const regForm = document.getElementById("registrationForm");
+  const loginForm = document.getElementById("loginForm");
 
-  const inputs = document.querySelectorAll("#registrationForm input");
-  inputs.forEach(clearAddedError);
+  // Set up form listeners
+  if (regForm) {
+    // Prevent form submission and validate registration form
+    regForm.addEventListener("submit", (e) => validateRegistration(e));
 
-  let isValid = true;
+    // Clear error messages when user starts typing
+    document.querySelectorAll("#registrationForm input").forEach((input) => {
+      input.addEventListener("input", clearErrorOnInput);
+    });
 
-  const inputData = [
-    {
-      id: "username",
-      value: document.getElementById("username").value,
-      message: "Username should not be empty and between 3-20 characters",
-    },
-    {
-      id: "first_name",
-      value: document.getElementById("first_name").value,
-      message: "First name should not be empty",
-    },
-    {
-      id: "last_name",
-      value: document.getElementById("last_name").value,
-      message: "Last name should not be empty",
-    },
-    {
-      id: "email",
-      value: document.getElementById("email").value,
-      message: "Email should not be empty and be with the format xyz@xyz.xyz",
-    },
-    {
-      id: "password",
-      value: document.getElementById("password").value,
-      message:
-        "Password must be at least 8 characters long with at least 1 uppercase letter and 1 number",
-    },
-    {
-      id: "confirmPassword",
-      value: document.getElementById("confirmPassword").value,
-      message: "Passwords must match",
-    },
-  ];
-
-  for (const input of inputData) {
-    if (!inputFormat(input.id, input.value)) {
-      isValid = false;
-      displayError(input.id, input.message);
+    // Check username availability when user moves away from username field
+    const usernameInput = document.getElementById("username");
+    if (usernameInput) {
+      usernameInput.addEventListener("blur", async function () {
+        const username = this.value.trim();
+        if (inputFormat("username", username)) {
+          if (!(await checkUsernameAvailability(username))) {
+            displayError("username", "Username is already taken!");
+          }
+        }
+      });
     }
   }
 
+  // Set up login form validation if present on the page
+  if (loginForm) {
+    loginForm.addEventListener("submit", validateLogin);
+    document.querySelectorAll("#loginForm input").forEach((input) => {
+      input.addEventListener("input", clearErrorOnInput);
+    });
+  }
+});
+
+/**
+ * Validates the registration form
+ * Checks all required fields, formats, and username availability
+ *
+ * @param {Event} event - The form submission event
+ */
+const validateRegistration = async (event) => {
+  event.preventDefault();
+  document.querySelectorAll("#registrationForm input").forEach(clearAddedError);
+
+  let isValid = true;
+  // Define fields to validate with their error messages
+  const fields = [
+    { id: "username", msg: "Username should be 3-20 characters" },
+    { id: "first_name", msg: "First name required" },
+    { id: "last_name", msg: "Last name required" },
+    { id: "email", msg: "Valid email required (format: user@example.com)" },
+    {
+      id: "password",
+      msg: "Password needs 8+ chars with 1 uppercase & 1 number",
+    },
+    { id: "confirmPassword", msg: "Passwords must match" },
+  ];
+
+  // Check each field against its validation rule
+  fields.forEach((field) => {
+    const value = document.getElementById(field.id).value;
+    if (!inputFormat(field.id, value)) {
+      isValid = false;
+      displayError(field.id, field.msg);
+    }
+  });
+
+  // Check username availability via AJAX
   if (isValid) {
     const username = document.getElementById("username").value;
-    const available = await checkUsernameAvailability(username);
-
-    if (!available) {
+    if (!(await checkUsernameAvailability(username))) {
       isValid = false;
       displayError("username", "Username is already taken!");
     }
   }
 
-  if (isValid) {
-    document.getElementById("registrationForm").submit();
-  }
+  // Submit the form if all validations pass
+  if (isValid) document.getElementById("registrationForm").submit();
 };
 
+/**
+ * Validates the login form
+ * Checks for required username and password
+ *
+ * @param {Event} event - The form submission event
+ */
 const validateLogin = (event) => {
   event.preventDefault();
-
-  const inputs = document.querySelectorAll("#loginForm input");
-  inputs.forEach(clearAddedError);
+  document.querySelectorAll("#loginForm input").forEach(clearAddedError);
 
   let isValid = true;
-
-  const inputData = [
-    {
-      id: "username",
-      value: document.getElementById("username").value,
-      message: "Username should not be empty",
-    },
-    {
-      id: "password",
-      value: document.getElementById("password").value,
-      message: "Password should not be empty",
-    },
+  const fields = [
+    { id: "username", msg: "Username required" },
+    { id: "password", msg: "Password required" },
   ];
 
-  for (const input of inputData) {
-    if (!inputFormat(input.id, input.value)) {
+  fields.forEach((field) => {
+    const value = document.getElementById(field.id).value;
+    if (!inputFormat(field.id, value)) {
       isValid = false;
-      displayError(input.id, input.message);
+      displayError(field.id, field.msg);
     }
-  }
+  });
 
-  if (isValid) {
-    document.getElementById("loginForm").submit();
-  }
+  // Submit the form if all validations pass
+  if (isValid) document.getElementById("loginForm").submit();
 };
 
-const inputFormat = (inputId, value) => {
-  switch (inputId) {
+/**
+ * Validation rules for each field type
+ * Contains specific format requirements for different input fields
+ *
+ * @param {string} id - The input field ID
+ * @param {string} value - The input field value
+ * @return {boolean} True if the input is valid, false otherwise
+ */
+const inputFormat = (id, value) => {
+  switch (id) {
     case "username":
+      // Username must be 3-20 characters
       return value.trim() !== "" && value.length >= 3 && value.length <= 20;
-
     case "first_name":
     case "last_name":
-      // Just ensure not empty and only letters, spaces, or hyphens
+      // Names must contain only letters, spaces, and hyphens
       return value.trim() !== "" && /^[A-Za-z\s-]+$/.test(value);
-
     case "email":
-      let emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailFormat.test(value);
-
+      // Email must match standard email format
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     case "password":
-      // At least 8 chars, with 1 uppercase and 1 number
-      let passwordFormat = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-      return passwordFormat.test(value);
-
+      // Password must be at least 8 characters with 1 uppercase and 1 number
+      return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(value);
     case "confirmPassword":
-      const password = document.getElementById("password").value;
-      return value === password && value !== "";
-
+      // Password confirmation must match the password field
+      return (
+        value === document.getElementById("password").value && value !== ""
+      );
     default:
       return true;
   }
 };
 
-const displayError = (inputId, message) => {
-  const input = document.getElementById(inputId);
+/**
+ * Displays an error message for an input field
+ * Creates or updates an error message span after the input
+ *
+ * @param {string} id - The input field ID
+ * @param {string} msg - The error message to display
+ */
+const displayError = (id, msg) => {
+  const input = document.getElementById(id);
   input.classList.add("error");
 
-  // Find the error span element
-  const errorSpan = document.getElementById(`${inputId}Error`);
+  // Find existing error span or create a new one
+  const errorSpan =
+    document.getElementById(`${id}Error`) ||
+    (() => {
+      const span = document.createElement("span");
+      span.classList.add("error-message");
+      span.id = `${id}Error`;
+      input.insertAdjacentElement("afterend", span);
+      return span;
+    })();
 
-  if (errorSpan) {
-    // Update existing error span
-    errorSpan.textContent = message;
-  } else {
-    // Create new error span if not found
-    let errorMessage = document.createElement("span");
-    errorMessage.classList.add("error-message");
-    errorMessage.id = `${inputId}Error`;
-    errorMessage.textContent = message;
-    input.insertAdjacentElement("afterend", errorMessage);
-  }
+  errorSpan.textContent = msg;
 };
 
+/**
+ * Clears error styling and message when user types valid input
+ *
+ * @param {Event} event - The input event
+ */
 const clearErrorOnInput = (event) => {
   const input = event.target;
-  const id = input.id;
-  const value = input.value;
-
-  if (input.classList.contains("error") && inputFormat(id, value)) {
+  if (input.classList.contains("error") && inputFormat(input.id, input.value)) {
     clearAddedError(input);
   }
 };
 
+/**
+ * Removes error styling and message from an input
+ *
+ * @param {HTMLElement} input - The input element
+ */
 const clearAddedError = (input) => {
-  if (!input || !input.id) return; // Ensure input exists
-
+  if (!input || !input.id) return;
   input.classList.remove("error");
-
-  // Find the error span for this input
   const errorSpan = document.getElementById(`${input.id}Error`);
-  if (errorSpan) {
-    errorSpan.remove(); // Properly remove error messages
-  }
+  if (errorSpan) errorSpan.remove();
 };
 
+/**
+ * Checks username availability via AJAX request
+ *
+ * @param {string} username - The username to check
+ * @return {Promise<boolean>} True if username is available, false if taken
+ */
 const checkUsernameAvailability = async (username) => {
   try {
     const response = await fetch(
@@ -175,50 +217,9 @@ const checkUsernameAvailability = async (username) => {
       )}`
     );
     const data = await response.json();
-    return !data.taken; // Return true if username is available
+    return !data.taken;
   } catch (error) {
     console.error("Error checking username:", error);
-    return true; // On error, allow submission to continue to server
+    return true; // Assume available on error to prevent blocking registration
   }
 };
-
-document.addEventListener("DOMContentLoaded", function () {
-  const registrationForm = document.getElementById("registrationForm");
-  const loginForm = document.getElementById("loginForm");
-  const usernameInput = document.getElementById("username");
-
-  if (registrationForm) {
-    registrationForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      validateRegistration(e);
-    });
-
-    const regInputs = document.querySelectorAll("#registrationForm input");
-    regInputs.forEach((input) => {
-      input.addEventListener("input", clearErrorOnInput);
-    });
-  }
-
-  if (loginForm) {
-    loginForm.addEventListener("submit", validateLogin);
-
-    const loginInputs = document.querySelectorAll("#loginForm input");
-    loginInputs.forEach((input) => {
-      input.addEventListener("input", clearErrorOnInput);
-    });
-  }
-
-  if (usernameInput && registrationForm) {
-    usernameInput.addEventListener("blur", async function () {
-      const username = this.value.trim();
-
-      if (inputFormat("username", username)) {
-        const available = await checkUsernameAvailability(username);
-
-        if (!available) {
-          displayError("username", "Username is already taken!");
-        }
-      }
-    });
-  }
-});

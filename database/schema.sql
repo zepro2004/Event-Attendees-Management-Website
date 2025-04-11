@@ -1,60 +1,59 @@
+-- Drop existing tables if they exist (be careful with this in production!)
+DROP TABLE IF EXISTS rsvps;
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS event_types;
+DROP TABLE IF EXISTS users;
+
+-- Create users table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL DEFAULT NULL,
-    is_admin BOOLEAN DEFAULT FALSE
+    email VARCHAR(100) NOT NULL UNIQUE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    last_login TIMESTAMP NULL
 );
 
+-- Create event_types table
 CREATE TABLE event_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT
+    name VARCHAR(50) NOT NULL UNIQUE
 );
 
-
+-- Create events table
 CREATE TABLE events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT,
     date DATETIME NOT NULL,
-    end_date DATETIME,
-    address VARCHAR(255) NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    state VARCHAR(50),
+    end_date DATETIME NULL,
+    address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
     postal_code VARCHAR(20),
-    country VARCHAR(50),
+    country VARCHAR(100) DEFAULT 'Canada',
     event_type_id INT,
     user_id INT NOT NULL,
-    max_attendees INT,
-    image_url VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (event_type_id) REFERENCES event_types(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    max_attendees INT NULL,
+    image_url VARCHAR(255) NULL,
+    FOREIGN KEY (event_type_id) REFERENCES event_types(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Create rsvps table
 CREATE TABLE rsvps (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
     event_id INT NOT NULL,
-    status ENUM('attending', 'maybe', 'declined') NOT NULL DEFAULT 'attending',
+    user_id INT NOT NULL,
+    status ENUM('attending', 'maybe', 'not_attending') NOT NULL,
     rsvp_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    UNIQUE KEY (user_id, event_id)
-);
-
-
-CREATE TABLE comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    event_id INT NOT NULL,
-    comment TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    UNIQUE KEY (event_id, user_id)
 );
+
+
+
+
+
